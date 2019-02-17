@@ -8,6 +8,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* every span */
 .code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
@@ -15,31 +16,38 @@ body {
     opacity: 0.6; /* Real browsers */
     filter: alpha(opacity = 60); /* MSIE */
     /* white-space: nowrap; */
+    color: white;
+}
+
+
+/* spans on current line*/
+.current-line {
+  opacity: 1 !important; /* Real browsers */
+  filter: alpha(opacity = 100) !important; /* MSIE */
 }
 
 div { outline-style:none;}
+
 
 .underline {
   text-decoration: underline;
 }
 
-.current-line {
-  opacity: .8 !important; /* Real browsers */
-  filter: alpha(opacity = 80) !important; /* MSIE */
-}
 
+/* right most span*/
 .right-round {
   border-top-right-radius: 2px;
   border-bottom-right-radius: 2px;
 }
 
+/* left most span*/
 .left-round {
   border-top-left-radius: 2px;
   border-bottom-left-radius: 2px;
 }
 
 .good {
-  background-color:orange;
+  background-color:greenyellow;
 }
 
 .bad {
@@ -47,7 +55,18 @@ div { outline-style:none;}
 }
 
 .not-typed{
-  background-color:orange;
+}
+
+#root {
+  padding: 2%;
+  background-color: rgb(66, 71, 75);
+}
+
+.py-5 {
+  margin-bottom: 0px!important;
+  padding-bottom: 0px!important;
+  height: 100%;
+  
 }
 
 
