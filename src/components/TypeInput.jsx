@@ -200,13 +200,13 @@ class TypeInput extends Component {
           onBlur={this.reFocus}
           value={""}
         />
-        <div className="top-lines good">
+        <div className="code top-lines good">
           {this.renderLines(this.state.toplines)}
         </div>
-        <div className="main-line">
+        <div className="code main-line">
           {this.renderMainline(this.state.mainlineLetters)}
         </div>
-        <div className="bottom-lines">
+        <div className="code bottom-lines">
           {this.renderLines(this.state.bottomlines)}
         </div>
       </div>
