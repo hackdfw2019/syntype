@@ -1,9 +1,11 @@
 {
   "name": "hack3rtyp3r",
   "version": "0.1.0",
+  "homepage": "https://hackdfw2019.github.io/syntype/",
   "private": true,
   "dependencies": {
     "bootstrap": "^4.3.1",
+    "gh-pages": "^2.0.1",
     "immutability-helper": "^3.0.0",
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
@@ -16,7 +18,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
