@@ -48,10 +48,9 @@ class TypeInput extends Component {
         this.state.ready = true;
         this.state.mainline = this.state.buffer.shift();
         this.mainlineToLetters();
-        for (var i = 0; i < this.state.numBottomlines + this.state.numToplines; i++) {
+        for (var i = 0; i < this.state.numBottomlines; i++) {
           this.state.bottomlines.push(this.state.buffer.shift());
         }
-        this.setUnderline(true);
         this.forceUpdate();
     }
   };
@@ -98,7 +97,7 @@ class TypeInput extends Component {
   };
 
   decrementPointer = () => {
-    if (this.state.charNum !== this.state.mainlineLetters.length) {
+    if (this.state.charNum !== this.state.mainline.length) {
       this.setUnderline(false);
     }
     if (this.state.charNum > 0) {
@@ -136,9 +135,7 @@ class TypeInput extends Component {
 
       this.state.mainline = this.state.bottomlines.shift();
       this.mainlineToLetters();
-      if (this.state.toplines.length === this.state.numToplines) {
-        this.state.bottomlines.push(this.state.buffer.shift());
-      }
+      this.state.bottomlines.push(this.state.buffer.shift());
 
       if (this.state.mainline.length !== 0) {
         this.setUnderline(true);
@@ -226,13 +223,13 @@ class TypeInput extends Component {
           onBlur={this.reFocus}
           value={""}
         />
-        <div className="top-lines good" ref={input => {this.toplines = input}}>
+        <div className="top-lines good">
           {this.renderLines(this.state.toplines)}
         </div>
-        <div className="main-line" ref={input => {this.mainline = input}}>
+        <div className="main-line">
           {this.renderMainline(this.state.mainlineLetters)}
         </div>
-        <div className="bottom-lines" ref={input => {this.bottomlines = input}}>
+        <div className="bottom-lines">
           {this.renderLines(this.state.bottomlines)}
         </div>
       </div>
