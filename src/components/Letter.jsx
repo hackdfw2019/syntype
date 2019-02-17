@@ -13,8 +13,6 @@ class Letter extends Component {
   getChar = lett => {
     if (lett.char === "\t") {
       return <React.Fragment>&emsp;&emsp;</React.Fragment>;
-    } else if (lett.char === "\n") {
-      return <React.Fragment> </React.Fragment>;
     } else {
       return <React.Fragment>{lett.char}</React.Fragment>;
     }
@@ -24,13 +22,13 @@ class Letter extends Component {
     let cls = "";
     switch (letter.status) {
       case 0:
-        cls += "bg-primary ";
+        cls = "bg-primary ";
         break;
       case 1:
-        cls += "bg-success ";
+        cls = "bg-success ";
         break;
       case 2:
-        cls += "bg-danger ";
+        cls = "bg-danger ";
         break;
       default:
     }
