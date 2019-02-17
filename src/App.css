@@ -36,6 +36,8 @@
   border-color: blue;
 }
 
+div { outline-style:none;}
+
 .underline {
   text-decoration: underline;
 }
