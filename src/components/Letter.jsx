@@ -34,7 +34,7 @@ class Letter extends Component {
         break;
       default:
     }
-    cls += "highlight ";
+    cls += " highlight ";
 
     switch (letter.pos) {
       case -1:
