@@ -71,7 +71,8 @@ class TypeInput extends Component {
       lineNum: 0,
       charNum: 0,
       lastSentLineNum: 0,
-      lastSentCharNum: 0
+      lastSentCharNum: 0,
+      errCount: 0
     };
     console.log("done constructing");
   }
@@ -130,33 +131,13 @@ class TypeInput extends Component {
     // });
   };
 
-  //only called when a good key is done, but may have already been sent, and accidentally backspaced
-  registerGoodKey = key => {
-    this.setStatus(1);
-    if (
-      this.state.charNum === this.state.lastSentCharNum &&
-      this.state.lineNum === this.state.lastSentLineNum
-    ) {
-      if (key === "\n") {
-        this.setState({
-          lastSentCharNum: 0,
-          lastSentLineNum: this.lastSentLineNum + 1
-        });
-        let bool = this.state.lines.length - this.state.lineNup < 50;
-        sendPacket(key, bool);
-      } else {
-        this.setState({
-          lastSentCharNum: this.state.lastSentCharNum + 1
-        });
-        sendPacket(key, false);
-      }
-    }
-  };
-
   //iterate line num nad charnum, validate, and format
   handleInput = e => {
     let key = this.textInput.value;
     this.textInput.value = "";
+    // console.log("event: " + e);
+    console.log(key);
+    console.log("errcound: " + this.state.errCount);
 
     if (key === "\b") {
       if (this.state.errCount > 0) {
@@ -164,6 +145,10 @@ class TypeInput extends Component {
         this.setStatus(0);
         this.decrementPointer();
       }
+    } else if (this.state.errCount > 0) {
+      this.errCount++;
+      this.setStatus(2);
+      this.incrementPointer();
     } else if (
       key === this.state.lines[this.state.lineNum].line[this.state.charNum].char
     ) {
@@ -177,7 +162,7 @@ class TypeInput extends Component {
       // this.setState({ errCount: this.state.errCount + 1 });
       this.incrementPointer();
     }
-    this.setState();
+    this.setState(this.state);
 
     // console.log(JSON.stringify(this.state));
   };
@@ -210,12 +195,13 @@ class TypeInput extends Component {
     return (
       <div className="TypeText">
         <input
-          type="text"
+          type="textArea"
           ref={input => {
             this.textInput = input;
           }}
           style={{ opacity: 0 }}
           onChange={this.handleInput}
+          onSubmit={this.handleInput}
           onBlur={this.reFocus}
         />
         {this.state.lines.map(line => (
