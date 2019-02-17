@@ -130,34 +130,12 @@ class TypeInput extends Component {
     // });
   };
 
-  //only called when a good key is done, but may have already been sent, and accidentally backspaced
-  registerGoodKey = key => {
-    this.setStatus(1);
-    if (
-      this.state.charNum === this.state.lastSentCharNum &&
-      this.state.lineNum === this.state.lastSentLineNum
-    ) {
-      if (key === "\n") {
-        this.setState({
-          lastSentCharNum: 0,
-          lastSentLineNum: this.lastSentLineNum + 1
-        });
-        let bool = this.state.lines.length - this.state.lineNup < 50;
-        sendPacket(key, bool);
-      } else {
-        this.setState({
-          lastSentCharNum: this.state.lastSentCharNum + 1
-        });
-        sendPacket(key, false);
-      }
-    }
-  };
 
   //iterate line num nad charnum, validate, and format
   handleInput = e => {
     let key = this.textInput.value;
     this.textInput.value = "";
-
+    //console.log(key);
     if (key === "\b") {
       if (this.state.errCount > 0) {
         this.state.errCount--;
@@ -170,6 +148,8 @@ class TypeInput extends Component {
       //handle normal chars, new line, tabs
       this.setStatus(1);
       this.incrementPointer();
+      console.log(key);
+      sendPacket(key, false);
     } else {
       //we got an bad key
       this.setStatus(2);
@@ -177,7 +157,7 @@ class TypeInput extends Component {
       // this.setState({ errCount: this.state.errCount + 1 });
       this.incrementPointer();
     }
-    this.setState();
+    this.setState(this.state);
 
     // console.log(JSON.stringify(this.state));
   };
