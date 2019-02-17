@@ -37,27 +37,32 @@ class TypeInput extends Component {
     };
     this.addText(props.text); // TODO: replace
 
-    this.state.mainline = this.state.buffer.shift()
+    this.state.mainline = this.state.buffer.shift();
     this.mainlineToLetters();
     for (var i = 0; i < this.state.numBottomlines; i++) {
-        this.state.bottomlines.push(this.state.buffer.shift());
+      this.state.bottomlines.push(this.state.buffer.shift());
     }
     console.log(this.state.bottomlines);
   }
 
-  addText = (text) => {
-    let lines = text.split('\\n');
-    this.state.buffer = this.state.buffer.concat(lines)
+  addText = text => {
+    let lines = text.split("\\n");
+    this.state.buffer = this.state.buffer.concat(lines);
   };
 
   mainlineToLetters = () => {
-    this.state.mainlineLetters = []
+    this.state.mainlineLetters = [];
     for (var i = 0; i < this.state.mainline.length; i++) {
-        var pos;
-        if (i === 0) pos = -1;
-        else if (i === this.state.mainline.length - 1) pos = 1;
-        else pos = 0;
-        this.state.mainlineLetters.push({char: this.state.mainline.charAt(i), status: 0, isCurrent: false, pos: pos});
+      var pos;
+      if (i === 0) pos = -1;
+      else if (i === this.state.mainline.length - 1) pos = 1;
+      else pos = 0;
+      this.state.mainlineLetters.push({
+        char: this.state.mainline.charAt(i),
+        status: 0,
+        isCurrent: false,
+        pos: pos
+      });
     }
   };
 
@@ -82,7 +87,7 @@ class TypeInput extends Component {
 
   decrementPointer = () => {
     if (this.state.charNum !== this.state.mainline.length) {
-        this.setUnderline(false);
+      this.setUnderline(false);
     }
     if (this.state.charNum > 0) {
       this.state.charNum--;
@@ -97,25 +102,36 @@ class TypeInput extends Component {
   handleKeyDown = e => {
     let key = e.key;
 
-    if (key === "Backspace" && (this.state.charNum !== this.state.mainline.length || this.state.goodPointer !== this.state.mainline.length)) {
-        this.decrementPointer();
-        this.setStatus(0);
-    } else if (key === "Enter" && this.state.charNum === this.state.mainline.length && this.state.goodPointer === this.state.mainline.length) {
+    if (
+      key === "Backspace" &&
+      (this.state.charNum !== this.state.mainline.length ||
+        this.state.goodPointer !== this.state.mainline.length)
+    ) {
+      this.decrementPointer();
+      this.setStatus(0);
+    } else if (
+      key === "Enter" &&
+      this.state.charNum === this.state.mainline.length &&
+      this.state.goodPointer === this.state.mainline.length
+    ) {
       this.state.charNum = 0;
       this.state.goodPointer = 0;
 
       this.state.toplines.push(this.state.mainline);
-      if (this.state.toplines.length > this.state.numToplines) this.state.toplines.shift()
+      if (this.state.toplines.length > this.state.numToplines)
+        this.state.toplines.shift();
 
-      this.state.mainline = this.state.bottomlines.shift()
+      this.state.mainline = this.state.bottomlines.shift();
       this.mainlineToLetters();
-      this.state.bottomlines.push(this.state.buffer.shift())
+      this.state.bottomlines.push(this.state.buffer.shift());
 
       if (this.state.mainline.length !== 0) {
         this.setUnderline(true);
       }
-
-    } else if (key === this.state.mainline.charAt(this.state.charNum) && this.state.charNum !== this.state.mainline.length) {
+    } else if (
+      key === this.state.mainline.charAt(this.state.charNum) &&
+      this.state.charNum !== this.state.mainline.length
+    ) {
       this.setStatus(1);
       this.incrementPointer();
       if (this.state.goodPointer === this.state.charNum - 1) {
@@ -123,7 +139,10 @@ class TypeInput extends Component {
         this.state.goodPointer++;
         sendPacket(key, Date.now(), this.state.buffer.length);
       }
-    } else if (key.length === 1 && this.state.charNum !== this.state.mainline.length) {
+    } else if (
+      key.length === 1 &&
+      this.state.charNum !== this.state.mainline.length
+    ) {
       this.setStatus(2);
       this.incrementPointer();
     }
@@ -138,25 +157,25 @@ class TypeInput extends Component {
     this.textInput.focus();
   };
 
-  renderLines = (lines) => {
-    var elements = []
+  renderLines = lines => {
+    var elements = [];
     for (var i = 0; i < lines.length; i++) {
       if (lines[i].length == 0) {
-          elements.push((<br/>));
+        elements.push(<br />);
       } else {
-          elements.push((<div>{lines[i]}</div>));
+        elements.push(<div>{lines[i]}</div>);
       }
     }
     return elements;
   };
 
-  renderMainline = (letters) => {
+  renderMainline = letters => {
     if (letters.length === 0) {
-        return (<br/>)
+      return <br />;
     }
-    var elements = []
+    var elements = [];
     for (var i = 0; i < letters.length; i++) {
-      elements.push((<Letter letter={letters[i]}/>)); 
+      elements.push(<Letter letter={letters[i]} />);
     }
     return elements;
   };
@@ -174,14 +193,14 @@ class TypeInput extends Component {
           onBlur={this.reFocus}
           value={""}
         />
-        <div className="topLines">
-            {this.renderLines(this.state.toplines)}
+        <div className="top-lines good">
+          {this.renderLines(this.state.toplines)}
         </div>
-        <div className="mainLine">
-            {this.renderMainline(this.state.mainlineLetters)}
+        <div className="main-line">
+          {this.renderMainline(this.state.mainlineLetters)}
         </div>
-        <div className="bottomLines">
-            {this.renderLines(this.state.bottomlines)}
+        <div className="bottom-lines">
+          {this.renderLines(this.state.bottomlines)}
         </div>
       </div>
     );

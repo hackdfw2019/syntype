@@ -11,20 +11,22 @@ body {
 .code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
-    -webkit-font-smoothing: auto;
-    opacity: 0.6; /* Real browsers */
-    filter: alpha(opacity = 60); /* MSIE */
-    /* white-space: nowrap; */
+  -webkit-font-smoothing: auto;
+  opacity: 0.6; /* Real browsers */
+  filter: alpha(opacity = 60); /* MSIE */
+  /* white-space: nowrap; */
 }
 
-div { outline-style:none;}
+div {
+  outline-style: none;
+}
 
 .underline {
   text-decoration: underline;
 }
 
-.current-line {
-  opacity: .8 !important; /* Real browsers */
+.main-line {
+  opacity: 0.8 !important; /* Real browsers */
   filter: alpha(opacity = 80) !important; /* MSIE */
 }
 
@@ -39,15 +41,13 @@ div { outline-style:none;}
 }
 
 .good {
-  background-color:orange;
+  background-color: rgb(152, 238, 149);
 }
 
 .bad {
-  background-color:pink;
+  background-color: pink;
 }
 
-.not-typed{
-  background-color:orange;
+.not-typed {
+  background-color: orange;
 }
-
-
