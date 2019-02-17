@@ -155,6 +155,8 @@ class TypeInput extends Component {
       //handle normal chars, new line, tabs
       this.setStatus(1);
       this.incrementPointer();
+      console.log(key);
+      sendPacket(key, this.state.lines.length - this.state.lineNum < 50);
     } else {
       //we got an bad key
       this.setStatus(2);
