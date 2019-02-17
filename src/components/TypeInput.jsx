@@ -3,15 +3,6 @@ import KeyboardEventHandler from "react-keyboard-event-handler";
 import Letter from "./Letter";
 import { isAbsolute } from "path";
 
-const websocket = new WebSocket("ws://127.0.0.1:5678/");
-
-const sendPacket = (char, request = 0) => {
-  var d = new Date();
-  websocket.send(
-    JSON.stringify({ char: char, time: d.getTime(), request: request })
-  );
-};
-
 class TypeInput extends Component {
   constructor(props) {
     super(props);
@@ -21,6 +12,7 @@ class TypeInput extends Component {
       toplines: [],
       bottomlines: [],
       mainline: "",
+      mainlineLetters: [],
       lineNum: 0,
       charNum: 0,
       lastSentLineNum: 0,
@@ -28,28 +20,39 @@ class TypeInput extends Component {
       goodPointer: 0,
       numToplines: props.numToplines,
       numBottomlines: props.numBottomlines,
-      websocket: new WebSocket("ws://127.0.0.1:5678/")
+      websocket: new WebSocket("ws://127.0.0.1:5678/"),
+      ready: false
     };
 
     this.state.websocket.onmessage = event => {
-      var data = event;
-      console.log(data);
-      this.addText(data);
+      this.addText(event.data);
     };
 
-    this.addText(props.text); // TODO: replace
+    this.state.websocket.onopen = event => {
+        this.sendPacket(null, null, null);
+    };
 
-    this.state.mainline = this.state.buffer.shift();
-    this.mainlineToLetters();
-    for (var i = 0; i < this.state.numBottomlines; i++) {
-      this.state.bottomlines.push(this.state.buffer.shift());
-    }
-    console.log(this.state.bottomlines);
   }
 
+  sendPacket = (char, time, request) => {
+      this.state.websocket.send(
+        JSON.stringify({ char: char, time: time, request: request })
+      );
+  };
+
   addText = text => {
-    let lines = text.split("\\n");
+    let lines = text.split("\n");
     this.state.buffer = this.state.buffer.concat(lines);
+
+    if (!this.state.ready) {
+        this.state.ready = true;
+        this.state.mainline = this.state.buffer.shift();
+        this.mainlineToLetters();
+        for (var i = 0; i < this.state.numBottomlines; i++) {
+          this.state.bottomlines.push(this.state.buffer.shift());
+        }
+        this.forceUpdate();
+    }
   };
 
   mainlineToLetters = () => {
@@ -112,8 +115,9 @@ class TypeInput extends Component {
 
     if (
       key === "Backspace" &&
-      (this.state.charNum !== this.state.mainline.length ||
+      ((this.state.charNum !== this.state.mainline.length ||
         this.state.goodPointer !== this.state.mainline.length)
+        && this.state.mainline.charAt(this.state.charNum - 1) !== '\t')
     ) {
       this.decrementPointer();
       this.setStatus(0);
@@ -136,6 +140,13 @@ class TypeInput extends Component {
       if (this.state.mainline.length !== 0) {
         this.setUnderline(true);
       }
+
+      while (this.state.mainline.charAt(this.state.charNum) === '\t') {
+        this.setStatus(1);
+        this.incrementPointer();
+        this.state.goodPointer++;
+      }
+      this.setUnderline(true);
     } else if (
       key === this.state.mainline.charAt(this.state.charNum) &&
       this.state.charNum !== this.state.mainline.length
@@ -143,9 +154,8 @@ class TypeInput extends Component {
       this.setStatus(1);
       this.incrementPointer();
       if (this.state.goodPointer === this.state.charNum - 1) {
-        console.log("sending!");
         this.state.goodPointer++;
-        sendPacket(key, Date.now(), this.state.buffer.length);
+        this.sendPacket(key, Date.now(), this.state.buffer.length);
       }
     } else if (
       key.length === 1 &&
@@ -171,7 +181,14 @@ class TypeInput extends Component {
       if (lines[i].length === 0) {
         elements.push(<br />);
       } else {
-        elements.push(<div>{lines[i]}</div>);
+        let content = lines[i].split('').map(char => {
+            if (char === "\t") {
+                return <React.Fragment>&emsp;&emsp;</React.Fragment>;
+            } else {
+                return <React.Fragment>{char}</React.Fragment>
+            }
+        });
+        elements.push(<div>{content}</div>);
       }
     }
     return elements;
