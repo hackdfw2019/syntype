@@ -8,7 +8,6 @@ class TypeInput extends Component {
 
   addText = (text, isImmediate) => {
     if (text === undefined) return [];
-
     let tempLines = [];
     let curLine = [];
     let curLineCount = 0;
@@ -34,14 +33,14 @@ class TypeInput extends Component {
         isesc = true;
         continue;
       }
+      curLine.push({ char: s, status: 0, isCurrent: false });
       if (s === "\n") {
-        curLine.push({ place: i, char: s, status: 0, isCurrent: false });
-        tempLines.push({ key: curLineCount, line: curLine });
+        tempLines.push({ line: curLine });
         curLineCount++;
         curLine = [];
         continue;
+      } else {
       }
-      curLine.push({ place: i, char: s, status: 0, isCurrent: false });
     }
     if (isImmediate) return tempLines;
 
@@ -66,13 +65,9 @@ class TypeInput extends Component {
   }
 
   setUnderline(bool) {
-    // let x = this.state.lineNum;
-    // let y = this.state.charNum;
-    // if (y >= this.state.lines[x].line.length) return;
-    // // let s = this.state.lines;
-    // // s[x].line[y].isCurrent = bool;
-    // // this.setState({ lines: s });
-    // this.state.lines[x].line[y].isCurrent = bool;
+    let x = this.state.lineNum;
+    let y = this.state.charNum;
+    this.state.lines[x].line[y].isCurrent = bool;
   }
   incrementPointer = () => {
     this.setUnderline(false);
@@ -169,16 +164,9 @@ class TypeInput extends Component {
       this.setStatus(0);
       this.decrementPointer();
     } else if (
-      this.state.charNum === this.state.lines[this.state.lineNum].line.length &&
-      key === "\n"
-    ) {
-      //handle new line
-      this.registerGoodKey(key);
-      this.incrementPointer();
-    } else if (
       key === this.state.lines[this.state.lineNum].line[this.state.charNum].char
     ) {
-      //handle normal chars
+      //handle normal chars, new line, tabs
       this.registerGoodKey(key);
       this.incrementPointer();
     } else {
@@ -195,36 +183,14 @@ class TypeInput extends Component {
   render() {
     console.log(JSON.stringify(this.state));
     return (
-      <div>
-        {/* <input type="text" /> */}
-        <div className="letter-container .text-primary">
-          {/* <input
-            type="text"
-            autoComplete="off"
-            autoCorrect="off"
-            autoFocus
-            aria-hidden="true"
-            style={{
-              outline: null,
-              color: "white",
-              border: "white",
-              position: "fixed",
-              fontSize: "1px",
-              left: "50%",
-              top: "-21px"
-            }}
-            onChange={this.handleInput}
-          /> */}
+      <div className="TypeText">
+        {this.state.lines.map(line => (
           <div>
-            {this.state.lines.map(line => (
-              <div className="" key={line.key}>
-                {line.line.map(letter => (
-                  <Letter letter={letter} key={letter.place} />
-                ))}
-              </div>
+            {line.line.map(letter => (
+              <Letter letter={letter} />
             ))}
           </div>
-        </div>
+        ))}
       </div>
     );
   }

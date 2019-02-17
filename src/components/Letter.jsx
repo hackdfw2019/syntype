@@ -3,16 +3,20 @@ import React, { Component } from "react";
 class Letter extends Component {
   state = {};
   render() {
-    return <span className={this.getLetterClasses(this.props.letter)} />;
+    return (
+      <span className={this.getLetterClasses(this.props.letter)}>
+        {this.getChar(this.props.letter)}
+      </span>
+    );
   }
 
   getChar = lett => {
-    if (this.props.letter.char === "\t") {
+    if (lett.char === "\t") {
       return <React.Fragment>&emsp;&emsp;</React.Fragment>;
-    } else if (this.props.letter.char === "\n") {
+    } else if (lett.char === "\n") {
       return <React.Fragment> </React.Fragment>;
     } else {
-      return <React.Fragment>{lett.chars}</React.Fragment>;
+      return <React.Fragment>{lett.char}</React.Fragment>;
     }
   };
 
