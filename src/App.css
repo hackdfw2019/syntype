@@ -35,3 +35,7 @@
 .letter {
   border-color: blue;
 }
+
+.underline {
+  text-decoration: underline;
+}
