@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import KeyboardEventHandler from "react-keyboard-event-handler";
 import Letter from "./Letter";
-import update from "immutability-helper";
 
 class TypeInput extends Component {
   state = {};
