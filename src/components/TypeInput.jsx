@@ -2,6 +2,22 @@ import React, { Component } from "react";
 import KeyboardEventHandler from "react-keyboard-event-handler";
 import Letter from "./Letter";
 
+
+
+const sendPacket = (char,request=0) => {
+    var d = new Date();
+    websocket.send(JSON.stringify({char: char, time: d.getTime(), request: request}));
+  };
+
+
+websocket.onmessage = function(event){
+    var data = event;
+    console.log(data);
+    addText(data, false);
+  };
+
+
+
 class TypeInput extends Component {
   state = {};
 
@@ -129,12 +145,12 @@ class TypeInput extends Component {
           lastSentLineNum: this.lastSentLineNum + 1
         });
         let bool = this.state.lines.length - this.state.lineNup < 50;
-        // sendPacket(key, bool);
+        sendPacket(key, bool);
       } else {
         this.setState({
           lastSentCharNum: this.state.lastSentCharNum + 1
         });
-        // sendPacket(key, false);
+        sendPacket(key, false);
       }
     }
   };
