@@ -71,7 +71,10 @@ class TypeInput extends Component {
       lineNum: 0,
       charNum: 0,
       lastSentLineNum: 0,
-      lastSentCharNum: 0
+      lastSentCharNum: 0,
+      errCount: 0,
+      beginRender: 0,
+      endRender: 26
     };
     console.log("done constructing");
   }
@@ -90,6 +93,10 @@ class TypeInput extends Component {
     ) {
       this.state.lineNum++;
       this.state.charNum = 0;
+      if (this.state.lineNum > 8) {
+        this.state.beginRender++;
+        this.state.endRender++;
+      }
     }
     this.setUnderline(true);
   };
@@ -130,18 +137,24 @@ class TypeInput extends Component {
     // });
   };
 
-
   //iterate line num nad charnum, validate, and format
   handleInput = e => {
     let key = this.textInput.value;
     this.textInput.value = "";
-    //console.log(key);
+    // console.log("event: " + e);
+    console.log(key);
+    console.log("errcound: " + this.state.errCount);
+
     if (key === "\b") {
       if (this.state.errCount > 0) {
         this.state.errCount--;
         this.setStatus(0);
         this.decrementPointer();
       }
+    } else if (this.state.errCount > 0) {
+      this.errCount++;
+      this.setStatus(2);
+      this.incrementPointer();
     } else if (
       key === this.state.lines[this.state.lineNum].line[this.state.charNum].char
     ) {
@@ -149,7 +162,7 @@ class TypeInput extends Component {
       this.setStatus(1);
       this.incrementPointer();
       console.log(key);
-      sendPacket(key, false);
+      sendPacket(key, this.state.lines.length - this.state.lineNum < 50);
     } else {
       //we got an bad key
       this.setStatus(2);
@@ -190,27 +203,36 @@ class TypeInput extends Component {
     return (
       <div className="TypeText">
         <input
-          type="text"
+          type="textArea"
           ref={input => {
             this.textInput = input;
           }}
           style={{ opacity: 0 }}
           onChange={this.handleInput}
+          onSubmit={this.handleInput}
           onBlur={this.reFocus}
         />
-        {this.state.lines.map(line => (
-          <div>
-            {line.line.map(letter => (
-              <Letter letter={letter} />
-            ))}
-          </div>
-        ))}
+        {this.renderList()}
       </div>
     );
   }
 
   renderList = () => {
-    return <h1>d</h1>;
+    var elements = [];
+    for (var i = this.state.beginRender; i < this.state.endRender; i++) {
+      elements.push(this.renderLine(i));
+    }
+    return elements;
+  };
+
+  renderLine = lineNum => {
+    return (
+      <div>
+        {this.state.lines[lineNum].line.map(letter => (
+          <Letter letter={letter} />
+        ))}
+      </div>
+    );
   };
 }
 
