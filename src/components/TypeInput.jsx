@@ -3,6 +3,21 @@ import KeyboardEventHandler from "react-keyboard-event-handler";
 import Letter from "./Letter";
 import { isAbsolute } from "path";
 
+const websocket = new WebSocket("ws://127.0.0.1:5678/");
+
+const sendPacket = (char, request = 0) => {
+  var d = new Date();
+  websocket.send(
+    JSON.stringify({ char: char, time: d.getTime(), request: request })
+  );
+};
+
+websocket.onmessage = function(event) {
+  var data = event;
+  console.log(data);
+  TypeInput.addText(data, false);
+};
+
 class TypeInput extends Component {
   state = {};
 
@@ -113,6 +128,29 @@ class TypeInput extends Component {
     //     this.state.charNum
     //   ].status = int)
     // });
+  };
+
+  //only called when a good key is done, but may have already been sent, and accidentally backspaced
+  registerGoodKey = key => {
+    this.setStatus(1);
+    if (
+      this.state.charNum === this.state.lastSentCharNum &&
+      this.state.lineNum === this.state.lastSentLineNum
+    ) {
+      if (key === "\n") {
+        this.setState({
+          lastSentCharNum: 0,
+          lastSentLineNum: this.lastSentLineNum + 1
+        });
+        let bool = this.state.lines.length - this.state.lineNup < 50;
+        sendPacket(key, bool);
+      } else {
+        this.setState({
+          lastSentCharNum: this.state.lastSentCharNum + 1
+        });
+        sendPacket(key, false);
+      }
+    }
   };
 
   //iterate line num nad charnum, validate, and format
