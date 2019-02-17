@@ -19,7 +19,6 @@ websocket.onmessage = function(event) {
 };
 
 class TypeInput extends Component {
-
   constructor(props) {
     super(props);
 
@@ -52,7 +51,14 @@ class TypeInput extends Component {
   };
 
   mainlineToLetters = () => {
-    this.state.mainlineLetters = this.state.mainline.split('').map((letter) => ({char: letter, status: 0, isCurrent: false}));
+    this.state.mainlineLetters = []
+    for (var i = 0; i < this.state.mainline.length; i++) {
+        var pos;
+        if (i === 0) pos = -1;
+        else if (i === this.state.mainline.length - 1) pos = 1;
+        else pos = 0;
+        this.state.mainlineLetters.push({char: this.state.mainline.charAt(i), status: 0, isCurrent: false, pos: pos});
+    }
   };
 
   setUnderline(bool) {
