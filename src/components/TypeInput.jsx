@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import KeyboardEventHandler from "react-keyboard-event-handler";
 import Letter from "./Letter";
+import { isAbsolute } from "path";
 
 class TypeInput extends Component {
   state = {};
@@ -57,31 +58,30 @@ class TypeInput extends Component {
       lastSentLineNum: 0,
       lastSentCharNum: 0
     };
-    // if (props.text !== undefined) {
-    //   this.addText(props.text);
-    // }
     console.log("done constructing");
   }
 
   setUnderline(bool) {
-    let x = this.state.lineNum;
-    let y = this.state.charNum;
-    this.state.lines[x].line[y].isCurrent = bool;
+    this.state.lines[this.state.lineNum].line[
+      this.state.charNum
+    ].isCurrent = bool;
   }
+
   incrementPointer = () => {
     this.setUnderline(false);
+    this.state.charNum++;
     if (
       this.state.charNum === this.state.lines[this.state.lineNum].line.length
     ) {
-      this.setState({ lineNum: this.state.lineNum + 1, charNum: 0 });
-    } else {
-      this.setState({ charNum: this.state.charNum + 1 });
+      this.state.lineNum++;
+      this.state.charNum = 0;
     }
     this.setUnderline(true);
   };
 
-  incrementLastPointer = () => {
-    this.setState({ lastSentCharNum: this.state.lastSentCharNum + 1 });
+  saveLastCords = () => {
+    this.state.lastSentCharNum = this.state.charNum;
+    this.state.lastSentLineNum = this.state.lineNum;
   };
 
   decrementPointer = () => {
@@ -92,15 +92,13 @@ class TypeInput extends Component {
         //if we were at very beginning
       } else {
         //set it to the end of the line
-        this.setState({
-          lineNum: this.state.lineNum - 1,
-          charNum: this.state.lines[this.state.lineNum - 1].line[
-            this.state.lines[this.state.lineNum].line.length - 1
-          ]
-        });
+        this.state.lineNum--;
+        this.state.charNum =
+          this.state.lines[this.state.lineNum].line.length - 1;
       }
     } else {
-      this.setState({ charNum: this.state.charNum - 1 });
+      this.state.charNum--;
+      // this.setState({ charNum: this.state.charNum - 1 });
     }
     this.setUnderline(true);
   };
@@ -109,69 +107,36 @@ class TypeInput extends Component {
     // let s = this.state.lines;
     // s[this.state.lineNum].line[this.state.charNum].status = int;
     // this.setState({ lines: s });
-    this.setState({
-      lines: (this.state.lines[this.state.lineNum].line[
-        this.state.charNum
-      ].status = int)
-    });
-  };
-
-  //only called when a good key is done, but may have already been sent, and accidentally backspaced
-  registerGoodKey = key => {
-    this.setStatus(1);
-    if (
-      this.state.charNum === this.state.lastSentCharNum &&
-      this.state.lineNum === this.state.lastSentLineNum
-    ) {
-      if (key === "\n") {
-        this.setState({
-          lastSentCharNum: 0,
-          lastSentLineNum: this.lastSentLineNum + 1
-        });
-        let bool = this.state.lines.length - this.state.lineNup < 50;
-        // sendPacket(key, bool);
-      } else {
-        this.setState({
-          lastSentCharNum: this.state.lastSentCharNum + 1
-        });
-        // sendPacket(key, false);
-      }
-    }
+    this.state.lines[this.state.lineNum].line[this.state.charNum].status = int;
+    // this.setState({
+    //   lines: (this.state.lines[this.state.lineNum].line[
+    //     this.state.charNum
+    //   ].status = int)
+    // });
   };
 
   //iterate line num nad charnum, validate, and format
   handleInput = e => {
-    let key = e.key;
-    console.log("Sent: " + key);
-    //clean special characters
-    switch (key) {
-      case "enter":
-        key = "\n";
-        break;
-      case "tab":
-        key = "\t";
-        break;
-      case "space":
-        key = " ";
-        break;
-      default:
-    }
-    if (key === "backspace") {
+    let key = this.textInput.value;
+    this.textInput.value = "";
+
+    if (key === "\b") {
       if (this.state.errCount > 0) {
-        this.setState({ errCount: this.state.errCount - 1 });
+        this.state.errCount--;
+        this.setStatus(0);
+        this.decrementPointer();
       }
-      this.setStatus(0);
-      this.decrementPointer();
     } else if (
       key === this.state.lines[this.state.lineNum].line[this.state.charNum].char
     ) {
       //handle normal chars, new line, tabs
-      this.registerGoodKey(key);
+      this.setStatus(1);
       this.incrementPointer();
     } else {
-      //we got an error
+      //we got an bad key
       this.setStatus(2);
-      this.setState({ errCount: this.state.errCount + 1 });
+      this.state.errCount++;
+      // this.setState({ errCount: this.state.errCount + 1 });
       this.incrementPointer();
     }
     this.setState();
@@ -179,10 +144,42 @@ class TypeInput extends Component {
     // console.log(JSON.stringify(this.state));
   };
 
+  cleanInput(input) {
+    // switch (in) {
+    //   case "enter":
+    //     key = "\n";
+    //     break;
+    //   case "tab":
+    //     key = "\t";
+    //     break;
+    //   case "space":
+    //     key = " ";
+    //     break;
+    //   default:
+    // }
+  }
+
+  componentDidMount() {
+    this.reFocus();
+  }
+
+  reFocus = () => {
+    this.textInput.focus();
+  };
+
   render() {
-    console.log(JSON.stringify(this.state));
+    //console.log(JSON.stringify(this.state));
     return (
       <div className="TypeText">
+        <input
+          type="text"
+          ref={input => {
+            this.textInput = input;
+          }}
+          style={{ opacity: 0 }}
+          onChange={this.handleInput}
+          onBlur={this.reFocus}
+        />
         {this.state.lines.map(line => (
           <div>
             {line.line.map(letter => (
