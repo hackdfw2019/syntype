@@ -72,7 +72,9 @@ class TypeInput extends Component {
       charNum: 0,
       lastSentLineNum: 0,
       lastSentCharNum: 0,
-      errCount: 0
+      errCount: 0,
+      beginRender: 0,
+      endRender: 26
     };
     console.log("done constructing");
   }
@@ -91,6 +93,10 @@ class TypeInput extends Component {
     ) {
       this.state.lineNum++;
       this.state.charNum = 0;
+      if (this.state.lineNum > 8) {
+        this.state.beginRender++;
+        this.state.endRender++;
+      }
     }
     this.setUnderline(true);
   };
@@ -206,19 +212,27 @@ class TypeInput extends Component {
           onSubmit={this.handleInput}
           onBlur={this.reFocus}
         />
-        {this.state.lines.map(line => (
-          <div>
-            {line.line.map(letter => (
-              <Letter letter={letter} />
-            ))}
-          </div>
-        ))}
+        {this.renderList()}
       </div>
     );
   }
 
   renderList = () => {
-    return <h1>d</h1>;
+    var elements = [];
+    for (var i = this.state.beginRender; i < this.state.endRender; i++) {
+      elements.push(this.renderLine(i));
+    }
+    return elements;
+  };
+
+  renderLine = lineNum => {
+    return (
+      <div>
+        {this.state.lines[lineNum].line.map(letter => (
+          <Letter letter={letter} />
+        ))}
+      </div>
+    );
   };
 }
 
