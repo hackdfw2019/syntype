@@ -12,11 +12,6 @@ const sendPacket = (char, request = 0) => {
   );
 };
 
-websocket.onmessage = function(event) {
-  var data = event;
-  console.log(data);
-  TypeInput.addText(data);
-};
 
 class TypeInput extends Component {
   constructor(props) {
@@ -33,8 +28,16 @@ class TypeInput extends Component {
       lastSentCharNum: 0,
       goodPointer: 0,
       numToplines: props.numToplines,
-      numBottomlines: props.numBottomlines
+      numBottomlines: props.numBottomlines,
+      websocket: new WebSocket("ws://127.0.0.1:5678/")
     };
+
+    this.state.websocket.onmessage = event => {
+      var data = event;
+      console.log(data);
+      this.addText(data);
+    };
+    
     this.addText(props.text); // TODO: replace
 
     this.state.mainline = this.state.buffer.shift()
