@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import KeyboardEventHandler from "react-keyboard-event-handler";
 import Letter from "./Letter";
 
-
+const websocket = new WebSocket("ws://127.0.0.1:5678/");
 
 const sendPacket = (char,request=0) => {
     var d = new Date();
@@ -13,7 +13,7 @@ const sendPacket = (char,request=0) => {
 websocket.onmessage = function(event){
     var data = event;
     console.log(data);
-    addText(data, false);
+    TypeInput.addText(data, false);
   };
 
 
