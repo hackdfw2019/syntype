@@ -66,6 +66,12 @@ class TypeInput extends Component {
         pos: pos
       });
     }
+    this.state.mainlineLetters.push({
+      char: <React.Fragment>&nbsp;</React.Fragment>,
+      status: 0,
+      isCurrent: false,
+      pos: 1
+    });
   };
 
   setUnderline(bool) {
@@ -73,10 +79,10 @@ class TypeInput extends Component {
   }
 
   incrementPointer = () => {
-    if (this.state.charNum < this.state.mainline.length) {
+    if (this.state.charNum < this.state.mainlineLetters.length) {
       this.setUnderline(false);
       this.state.charNum++;
-      if (this.state.charNum !== this.state.mainline.length) {
+      if (this.state.charNum !== this.state.mainlineLetters.length) {
         this.setUnderline(true);
       }
     }
@@ -200,13 +206,13 @@ class TypeInput extends Component {
           onBlur={this.reFocus}
           value={""}
         />
-        <div className="code top-lines good">
+        <div className="top-lines good">
           {this.renderLines(this.state.toplines)}
         </div>
-        <div className="code main-line">
+        <div className="main-line">
           {this.renderMainline(this.state.mainlineLetters)}
         </div>
-        <div className="code bottom-lines">
+        <div className="bottom-lines">
           {this.renderLines(this.state.bottomlines)}
         </div>
       </div>
