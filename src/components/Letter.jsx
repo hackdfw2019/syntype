@@ -24,16 +24,26 @@ class Letter extends Component {
     let cls = "";
     switch (letter.status) {
       case 0:
-        cls += "bg-primary ";
+        cls += "not-typed ";
         break;
       case 1:
-        cls += "bg-success ";
+        cls += "good ";
         break;
       case 2:
-        cls += "bg-danger ";
+        cls += "bad ";
         break;
       default:
     }
+    switch (letter.pos) {
+      case -1:
+        cls += "left-round ";
+        break;
+      case 1:
+        cls += "right-round ";
+        break;
+      default:
+    }
+    cls += "highlight ";
     if (letter.isCurrent) {
       cls += "underline ";
     }

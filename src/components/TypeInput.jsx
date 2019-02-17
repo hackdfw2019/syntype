@@ -48,13 +48,16 @@ class TypeInput extends Component {
         isesc = true;
         continue;
       }
-      curLine.push({ char: s, status: 0, isCurrent: false });
       if (s === "\n") {
+        curLine.push({ pos: 1, char: s, status: 0, isCurrent: false });
         tempLines.push({ line: curLine });
         curLineCount++;
         curLine = [];
         continue;
+      } else if (curLine.length === 0) {
+        curLine.push({ pos: 0, char: s, status: 0, isCurrent: false });
       } else {
+        curLine.push({ pos: -1, char: s, status: 0, isCurrent: false });
       }
     }
     if (isImmediate) return tempLines;
@@ -227,7 +230,7 @@ class TypeInput extends Component {
 
   renderLine = lineNum => {
     return (
-      <div>
+      <div className={lineNum === this.state.lineNum && "current-line"}>
         {this.state.lines[lineNum].line.map(letter => (
           <Letter letter={letter} />
         ))}
