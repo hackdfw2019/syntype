@@ -13,8 +13,6 @@ class Letter extends Component {
   getChar = lett => {
     if (lett.char === "\t") {
       return <React.Fragment>&emsp;&emsp;</React.Fragment>;
-    } else if (lett.char === "\n") {
-      return <React.Fragment> </React.Fragment>;
     } else {
       return <React.Fragment>{lett.char}</React.Fragment>;
     }
