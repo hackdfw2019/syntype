@@ -8,7 +8,46 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
+.code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+    -webkit-font-smoothing: auto;
+    opacity: 0.6; /* Real browsers */
+    filter: alpha(opacity = 60); /* MSIE */
+    /* white-space: nowrap; */
 }
+
+div { outline-style:none;}
+
+.underline {
+  text-decoration: underline;
+}
+
+.current-line {
+  opacity: .8 !important; /* Real browsers */
+  filter: alpha(opacity = 80) !important; /* MSIE */
+}
+
+.right-round {
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+.left-round {
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.good {
+  background-color:orange;
+}
+
+.bad {
+  background-color:pink;
+}
+
+.not-typed{
+  background-color:orange;
+}
+
+
