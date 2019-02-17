@@ -49,15 +49,18 @@ class TypeInput extends Component {
         continue;
       }
       if (s === "\n") {
+        if (curLine.length !== 0) {
+          curLine[curLine.length - 1 >= 0 ? curLine.length - 1 : 0].pos = 1;
+        }
         curLine.push({ pos: 1, char: s, status: 0, isCurrent: false });
         tempLines.push({ line: curLine });
         curLineCount++;
         curLine = [];
         continue;
       } else if (curLine.length === 0) {
-        curLine.push({ pos: 0, char: s, status: 0, isCurrent: false });
-      } else {
         curLine.push({ pos: -1, char: s, status: 0, isCurrent: false });
+      } else {
+        curLine.push({ pos: 0, char: s, status: 0, isCurrent: false });
       }
     }
     if (isImmediate) return tempLines;

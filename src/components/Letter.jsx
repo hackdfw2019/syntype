@@ -34,6 +34,8 @@ class Letter extends Component {
         break;
       default:
     }
+    cls += "highlight ";
+
     switch (letter.pos) {
       case -1:
         cls += "left-round ";
@@ -43,7 +45,6 @@ class Letter extends Component {
         break;
       default:
     }
-    cls += "highlight ";
     if (letter.isCurrent) {
       cls += "underline ";
     }
