@@ -36,5 +36,11 @@
   border-color: blue;
 }
 
+<<<<<<< HEAD
 div { outline-style:none;}
 
+=======
+.underline {
+  text-decoration: underline;
+}
+>>>>>>> 35652669d5fa4defe858bf2181f7dbaf688b7add

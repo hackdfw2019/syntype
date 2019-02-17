@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 // import logo from "./logo.svg";
 import "./App.css";
-import TypeInput from "./components/TypeInput";
+import TypeInput from "./components/TypeInput.jsx";
 
 class App extends Component {
   render() {
