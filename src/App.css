@@ -35,3 +35,6 @@
 .letter {
   border-color: blue;
 }
+
+div { outline-style:none;}
+
