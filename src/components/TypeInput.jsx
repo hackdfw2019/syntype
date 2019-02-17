@@ -12,7 +12,6 @@ const sendPacket = (char, request = 0) => {
   );
 };
 
-
 class TypeInput extends Component {
   constructor(props) {
     super(props);
@@ -37,7 +36,7 @@ class TypeInput extends Component {
       console.log(data);
       this.addText(data);
     };
-    
+
     this.addText(props.text); // TODO: replace
 
     this.state.mainline = this.state.buffer.shift();
@@ -163,7 +162,7 @@ class TypeInput extends Component {
   renderLines = lines => {
     var elements = [];
     for (var i = 0; i < lines.length; i++) {
-      if (lines[i].length == 0) {
+      if (lines[i].length === 0) {
         elements.push(<br />);
       } else {
         elements.push(<div>{lines[i]}</div>);
@@ -174,7 +173,12 @@ class TypeInput extends Component {
 
   renderMainline = letters => {
     if (letters.length === 0) {
-      return <br />;
+      return (
+        <React.Fragment>
+          &nbsp;
+          <br />
+        </React.Fragment>
+      );
     }
     var elements = [];
     for (var i = 0; i < letters.length; i++) {
