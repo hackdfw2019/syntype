@@ -15,96 +15,64 @@ const sendPacket = (char, request = 0) => {
 websocket.onmessage = function(event) {
   var data = event;
   console.log(data);
-  TypeInput.addText(data, false);
+  TypeInput.addText(data);
 };
 
 class TypeInput extends Component {
-  state = {};
-
-  addText = (text, isImmediate) => {
-    if (text === undefined) return [];
-    let tempLines = [];
-    let curLine = [];
-    let curLineCount = 0;
-    let isesc = false;
-    bigfor: for (let i = 0; i < text.length; i++) {
-      let s = text.charAt(i);
-      if (isesc) {
-        switch (s) {
-          case "n":
-            s = "\n";
-            break;
-          case "r":
-            isesc = false;
-            continue bigfor;
-          case "t":
-            s = "\t";
-            break;
-          default:
-        }
-        isesc = false;
-      }
-      if (s === "\\") {
-        isesc = true;
-        continue;
-      }
-      if (s === "\n") {
-        if (curLine.length !== 0) {
-          curLine[curLine.length - 1 >= 0 ? curLine.length - 1 : 0].pos = 1;
-        }
-        curLine.push({ pos: 1, char: s, status: 0, isCurrent: false });
-        tempLines.push({ line: curLine });
-        curLineCount++;
-        curLine = [];
-        continue;
-      } else if (curLine.length === 0) {
-        curLine.push({ pos: -1, char: s, status: 0, isCurrent: false });
-      } else {
-        curLine.push({ pos: 0, char: s, status: 0, isCurrent: false });
-      }
-    }
-    if (isImmediate) return tempLines;
-
-    this.setState({ lines: this.state.lines.append(tempLines) });
-  };
-
   constructor(props) {
     super(props);
 
     this.state = {
-      text: props.text,
-      lines: this.addText(props.text, true),
+      buffer: [],
+      toplines: [],
+      bottomlines: [],
+      mainline: "",
       lineNum: 0,
       charNum: 0,
       lastSentLineNum: 0,
       lastSentCharNum: 0,
-      errCount: 0,
-      beginRender: 0,
-      endRender: 26
+      goodPointer: 0,
+      numToplines: props.numToplines,
+      numBottomlines: props.numBottomlines
     };
-    console.log("done constructing");
+    this.addText(props.text); // TODO: replace
+
+    this.state.mainline = this.state.buffer.shift()
+    this.mainlineToLetters();
+    for (var i = 0; i < this.state.numBottomlines; i++) {
+        this.state.bottomlines.push(this.state.buffer.shift());
+    }
+    console.log(this.state.bottomlines);
   }
 
+  addText = (text) => {
+    let lines = text.split('\\n');
+    this.state.buffer = this.state.buffer.concat(lines)
+  };
+
+  mainlineToLetters = () => {
+    this.state.mainlineLetters = []
+    for (var i = 0; i < this.state.mainline.length; i++) {
+        var pos;
+        if (i === 0) pos = -1;
+        else if (i === this.state.mainline.length - 1) pos = 1;
+        else pos = 0;
+        this.state.mainlineLetters.push({char: this.state.mainline.charAt(i), status: 0, isCurrent: false, pos: pos});
+    }
+  };
+
   setUnderline(bool) {
-    this.state.lines[this.state.lineNum].line[
-      this.state.charNum
-    ].isCurrent = bool;
+    this.state.mainlineLetters[this.state.charNum].isCurrent = bool;
   }
 
   incrementPointer = () => {
-    this.setUnderline(false);
-    this.state.charNum++;
-    if (
-      this.state.charNum === this.state.lines[this.state.lineNum].line.length
-    ) {
-      this.state.lineNum++;
-      this.state.charNum = 0;
-      if (this.state.lineNum > 8) {
-        this.state.beginRender++;
-        this.state.endRender++;
+    if (this.state.charNum < this.state.mainline.length) {
+      this.setUnderline(false);
+      this.state.charNum++;
+      if (this.state.charNum !== this.state.mainline.length) {
+        this.setUnderline(true);
       }
     }
-    this.setUnderline(true);
   };
 
   saveLastCords = () => {
@@ -113,88 +81,54 @@ class TypeInput extends Component {
   };
 
   decrementPointer = () => {
-    this.setUnderline(false);
-    if (this.state.charNum === 0) {
-      //if we were at beginning of line
-      if (this.state.lineNum === 0) {
-        //if we were at very beginning
-      } else {
-        //set it to the end of the line
-        this.state.lineNum--;
-        this.state.charNum =
-          this.state.lines[this.state.lineNum].line.length - 1;
-      }
-    } else {
+    if (this.state.charNum !== this.state.mainline.length) {
+        this.setUnderline(false);
+    }
+    if (this.state.charNum > 0) {
       this.state.charNum--;
-      // this.setState({ charNum: this.state.charNum - 1 });
     }
     this.setUnderline(true);
   };
 
   setStatus = int => {
-    // let s = this.state.lines;
-    // s[this.state.lineNum].line[this.state.charNum].status = int;
-    // this.setState({ lines: s });
-    this.state.lines[this.state.lineNum].line[this.state.charNum].status = int;
-    // this.setState({
-    //   lines: (this.state.lines[this.state.lineNum].line[
-    //     this.state.charNum
-    //   ].status = int)
-    // });
+    this.state.mainlineLetters[this.state.charNum].status = int;
   };
 
-  //iterate line num nad charnum, validate, and format
-  handleInput = e => {
-    let key = this.textInput.value;
-    this.textInput.value = "";
-    // console.log("event: " + e);
-    console.log(key);
-    console.log("errcound: " + this.state.errCount);
+  handleKeyDown = e => {
+    let key = e.key;
 
-    if (key === "\b") {
-      if (this.state.errCount > 0) {
-        this.state.errCount--;
-        this.setStatus(0);
+    if (key === "Backspace" && (this.state.charNum !== this.state.mainline.length || this.state.goodPointer !== this.state.mainline.length)) {
         this.decrementPointer();
+        this.setStatus(0);
+    } else if (key === "Enter" && this.state.charNum === this.state.mainline.length && this.state.goodPointer === this.state.mainline.length) {
+      this.state.charNum = 0;
+      this.state.goodPointer = 0;
+
+      this.state.toplines.push(this.state.mainline);
+      if (this.state.toplines.length > this.state.numToplines) this.state.toplines.shift()
+
+      this.state.mainline = this.state.bottomlines.shift()
+      this.mainlineToLetters();
+      this.state.bottomlines.push(this.state.buffer.shift())
+
+      if (this.state.mainline.length !== 0) {
+        this.setUnderline(true);
       }
-    } else if (this.state.errCount > 0) {
-      this.errCount++;
-      this.setStatus(2);
-      this.incrementPointer();
-    } else if (
-      key === this.state.lines[this.state.lineNum].line[this.state.charNum].char
-    ) {
-      //handle normal chars, new line, tabs
+
+    } else if (key === this.state.mainline.charAt(this.state.charNum) && this.state.charNum !== this.state.mainline.length) {
       this.setStatus(1);
       this.incrementPointer();
-      console.log(key);
-      sendPacket(key, this.state.lines.length - this.state.lineNum < 50);
-    } else {
-      //we got an bad key
+      if (this.state.goodPointer === this.state.charNum - 1) {
+        console.log("sending!");
+        this.state.goodPointer++;
+        sendPacket(key, Date.now(), this.state.buffer.length);
+      }
+    } else if (key.length === 1 && this.state.charNum !== this.state.mainline.length) {
       this.setStatus(2);
-      this.state.errCount++;
-      // this.setState({ errCount: this.state.errCount + 1 });
       this.incrementPointer();
     }
-    this.setState(this.state);
-
-    // console.log(JSON.stringify(this.state));
+    this.forceUpdate();
   };
-
-  cleanInput(input) {
-    // switch (in) {
-    //   case "enter":
-    //     key = "\n";
-    //     break;
-    //   case "tab":
-    //     key = "\t";
-    //     break;
-    //   case "space":
-    //     key = " ";
-    //     break;
-    //   default:
-    // }
-  }
 
   componentDidMount() {
     this.reFocus();
@@ -204,8 +138,30 @@ class TypeInput extends Component {
     this.textInput.focus();
   };
 
+  renderLines = (lines) => {
+    var elements = []
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].length == 0) {
+          elements.push((<br/>));
+      } else {
+          elements.push((<div>{lines[i]}</div>));
+      }
+    }
+    return elements;
+  };
+
+  renderMainline = (letters) => {
+    if (letters.length === 0) {
+        return (<br/>)
+    }
+    var elements = []
+    for (var i = 0; i < letters.length; i++) {
+      elements.push((<Letter letter={letters[i]}/>)); 
+    }
+    return elements;
+  };
+
   render() {
-    //console.log(JSON.stringify(this.state));
     return (
       <div className="TypeText">
         <input
@@ -214,32 +170,22 @@ class TypeInput extends Component {
             this.textInput = input;
           }}
           style={{ opacity: 0 }}
-          onChange={this.handleInput}
-          onSubmit={this.handleInput}
+          onKeyDown={this.handleKeyDown}
           onBlur={this.reFocus}
+          value={""}
         />
-        {this.renderList()}
+        <div className="topLines">
+            {this.renderLines(this.state.toplines)}
+        </div>
+        <div className="mainLine">
+            {this.renderMainline(this.state.mainlineLetters)}
+        </div>
+        <div className="bottomLines">
+            {this.renderLines(this.state.bottomlines)}
+        </div>
       </div>
     );
   }
-
-  renderList = () => {
-    var elements = [];
-    for (var i = this.state.beginRender; i < this.state.endRender; i++) {
-      elements.push(this.renderLine(i));
-    }
-    return elements;
-  };
-
-  renderLine = lineNum => {
-    return (
-      <div className={lineNum === this.state.lineNum && "current-line"}>
-        {this.state.lines[lineNum].line.map(letter => (
-          <Letter letter={letter} />
-        ))}
-      </div>
-    );
-  };
 }
 
 export default TypeInput;
